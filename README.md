@@ -10,7 +10,8 @@
 - **即插即用** - 免编译直接修改配置文件即可使用
 
 ## 🎯 效果演示
-
+![](https://github.com/SugarSong404/fps-cheat/blob/valorant/assets/cs2.gif)
+![](https://github.com/SugarSong404/fps-cheat/blob/valorant/assets/valorant.gif)
 
 ## 🛠️ 技术原理
 
