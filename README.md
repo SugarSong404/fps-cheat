@@ -4,13 +4,16 @@
 
 ## 🔥 核心功能
 
-- **智能架点扳机** - 自动检测敌人经过并触发射击，该功能游戏CS2中也可使用
+- **自动架点扳机** - 自动检测敌人经过并触发射击，该功能游戏CS2中也可使用
 - **基础自瞄辅助** - 通过颜色识别实现敌人检测
 - **零性能依赖** - 任何配置电脑都能流畅运行
 - **即插即用** - 免编译直接修改配置文件即可使用
 
 ## 🎯 效果演示
+1️⃣自动扳机演示
 ![](https://github.com/SugarSong404/fps-cheat/blob/valorant/assets/cs2.gif)
+
+2️⃣自瞄演示
 ![](https://github.com/SugarSong404/fps-cheat/blob/valorant/assets/valorant.gif)
 
 ## 🛠️ 技术原理
