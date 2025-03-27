@@ -7,7 +7,7 @@
       "hotkey":"~",
       "delay": 1,
       "region_size":14,
-      "threshold":50
+      "threshold":15
     },
     "auto_aim": {
       "hotkey":"Alt",
