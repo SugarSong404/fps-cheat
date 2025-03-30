@@ -12,8 +12,8 @@
     "auto_aim": {
       "hotkey":"Alt",
       "size": 200,
-      "lower_color": [97, 225, 225],
-      "upper_color": [137, 265, 265],
+      "lower_color": [235, 128, 235],
+      "upper_color": [265, 195, 265],
       "sens": 0.246,
       "offsets": [2,5]
     }

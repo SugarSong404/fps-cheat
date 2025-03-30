@@ -5,7 +5,7 @@ import time
 import random
 from adafruit_hid.mouse import Mouse
 
-def smooth_move(mouse, target_x, target_y, duration=0.06, overshoot_range=5):
+def smooth_move(mouse, target_x, target_y, duration=0.02, overshoot_range=5):
     start_x, start_y = 0, 0 
     steps = int(duration / 0.01) 
 
