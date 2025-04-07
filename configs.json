@@ -13,7 +13,7 @@
       "hotkey":"alt",
       "size": 200,
       "lower_color": [235, 50, 235],
-      "upper_color": [265, 195, 265],
+      "upper_color": [285, 215, 285],
       "sens": 0.246,
       "offsets": [2,5]
     }
