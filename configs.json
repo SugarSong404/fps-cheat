@@ -4,15 +4,15 @@
       "baud": 9600
     },
     "auto_trigger": {
-      "hotkey":"~",
+      "hotkey":"`",
       "delay": 1,
       "region_size":14,
       "threshold":15
     },
     "auto_aim": {
-      "hotkey":"Alt",
+      "hotkey":"alt",
       "size": 200,
-      "lower_color": [235, 128, 235],
+      "lower_color": [235, 50, 235],
       "upper_color": [265, 195, 265],
       "sens": 0.246,
       "offsets": [2,5]

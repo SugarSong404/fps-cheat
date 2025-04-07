@@ -8,7 +8,7 @@ import json
 import os
 
 class AutoAim:
-    def __init__(self,ser,size,lColor,hColor,sens,offsets):
+    def __init__(self, ser, size, lColor, hColor, sens, offsets):
         self.ser = ser
         self.size = size
         self.lColor = lColor
@@ -23,20 +23,20 @@ class AutoAim:
         with mss.mss() as sct:
             screen_width = sct.monitors[1]['width']
             screen_height = sct.monitors[1]['height']
-        
+
             region = {
-                "top": screen_height // 2 - self.size//2,
-                "left": screen_width // 2 - self.size//2,
+                "top": screen_height // 2 - self.size // 2,
+                "left": screen_width // 2 - self.size // 2,
                 "width": self.size,
                 "height": self.size
             }
             screenshot = sct.grab(region)
             frame = np.array(screenshot)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR) 
-        
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)     
+
             mask = cv2.inRange(frame, lower_bound, upper_bound)
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
+
             if contours:
                 min_x, min_y = self.size, self.size
                 for contour in contours:
@@ -44,11 +44,11 @@ class AutoAim:
                     if y < min_y or (y == min_y and x < min_x):
                         min_x, min_y = x, y
 
-                rel_x = min_x - self.size//2
-                rel_y = min_y - self.size//2
+                rel_x = min_x - self.size // 2
+                rel_y = min_y - self.size // 2
 
                 print(f"Find left top key point, sent ({rel_x}, {rel_y})")
-                data = f"{int((rel_x+self.offsets[0])*(0.812/self.sens))},{int((rel_y+self.offsets[1])*(0.812/self.sens))}\n".encode()
+                data = f"{int((rel_x + self.offsets[0]) * (0.812 / self.sens))},{int((rel_y + self.offsets[1]) * (0.812 / self.sens))}\n".encode()
                 self.ser.write(data)
                 self.ser.flush()
             else:
@@ -56,10 +56,11 @@ class AutoAim:
                 self.ser.flush()
                 print("No key point detected, sent (0,0)")
 
+
 class AutoTrigger:
-    def __init__(self,ser,threshold,region_size,delay):
+    def __init__(self, ser, threshold, region_size, delay):
         self.last_avg_color = None
-        
+
         self.ser = ser
         self.threshold = threshold
         self.region_size = region_size
@@ -80,7 +81,7 @@ class AutoTrigger:
             return np.mean(img_array, axis=(0, 1))
 
     def check_color_change(self, current_avg):
-        if self.last_avg_color is None:return False
+        if self.last_avg_color is None: return False
         color_diff = np.abs(current_avg - self.last_avg_color)
         return np.any(color_diff > self.threshold)
 
@@ -89,20 +90,21 @@ class AutoTrigger:
         while True:
             current_avg = self.calculate_avg_color()
             if self.check_color_change(current_avg):
-                time.sleep(self.delay/1000)
+                time.sleep(self.delay / 1000)
                 self.ser.write(b"9999,9999\n")
                 self.ser.flush()
                 self.active = False
                 break
 
+
 def lets_cheat():
     config_path = os.path.join(os.path.dirname(__file__), 'configs.json')
     with open(config_path, 'r') as f:
         config = json.load(f)
-        
+
     serial_config = config['serial']
     ser = serial.Serial(serial_config['port'], serial_config['baud'])
-    
+
     trigger_config = config['auto_trigger']
     trigger = AutoTrigger(
         ser,
@@ -118,22 +120,43 @@ def lets_cheat():
         lColor=np.array(aim_config['lower_color']),
         hColor=np.array(aim_config['upper_color']),
         sens=aim_config['sens'],
-        offsets = aim_config['offsets']
+        offsets=aim_config['offsets']
     )
 
-    while True:
-        if keyboard.is_pressed(trigger_config["hotkey"]):
-            print("do auto_trigger")
-            trigger.run()
-            time.sleep(0.001)
-            while keyboard.is_pressed(trigger_config["hotkey"]):
-                time.sleep(0.01)
-        elif keyboard.is_pressed(aim_config["hotkey"]):
-            print("do auto_aim")
-            bot.run()
-            time.sleep(0.001)
-            while keyboard.is_pressed(aim_config["hotkey"]):
-                time.sleep(0.01)
-                
+    trigger_active = False
+    aim_active = False
+
+    def on_trigger_press(event):
+        nonlocal trigger_active  # Access outer scope variable
+        if event.name == trigger_config["hotkey"]:
+            if not trigger_active:
+                trigger_active = True
+                print("do auto_trigger")
+                trigger.run()
+
+    def on_trigger_release(event):
+        nonlocal trigger_active
+        if event.name == trigger_config["hotkey"]:
+            trigger_active = False
+
+    def on_aim_press(event):
+        nonlocal aim_active
+        if event.name == aim_config["hotkey"]:
+            if not aim_active:
+                aim_active = True
+                print("do auto_aim")
+                bot.run()
+
+    def on_aim_release(event):
+        nonlocal aim_active
+        if event.name == aim_config["hotkey"]:
+            aim_active = False
+
+    keyboard.on_press_key(trigger_config["hotkey"], on_trigger_press)
+    keyboard.on_release_key(trigger_config["hotkey"], on_trigger_release)
+    keyboard.on_press_key(aim_config["hotkey"], on_aim_press)
+    keyboard.on_release_key(aim_config["hotkey"], on_aim_release)
+
+    keyboard.wait(']')
+
 lets_cheat()
-    

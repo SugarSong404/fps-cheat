@@ -54,7 +54,7 @@ while True:
                     print("Mouse clicked! Be triggerred success!")
                     continue
                 
-                smooth_move(mouse, x, y)
+                mouse.move(x, y)
                 
                 mouse.click(Mouse.LEFT_BUTTON)
                 print(f"Mouse moved smoothly to {x}, {y} and clicked.")
@@ -66,3 +66,4 @@ while True:
             print(f"Error: Failed to decode or parse the received data. Exception: {e}")
     else:
         time.sleep(0.001)
+
