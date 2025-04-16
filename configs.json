@@ -5,7 +5,7 @@
     },
     "auto_trigger": {
       "hotkey":"`",
-      "delay": 1,
+      "delay": 20,
       "region_size":14,
       "threshold":15
     },
