@@ -6,6 +6,46 @@ import time
 import cv2
 import json
 import os
+import mouse
+
+class AutoTrigger:
+    def __init__(self, ser, threshold, region_size, delay):
+        self.last_avg_color = None
+
+        self.ser = ser
+        self.threshold = threshold
+        self.region_size = region_size
+        self.delay = delay
+
+    def calculate_avg_color(self):
+        with mss.mss() as sct:
+            self.center_x = sct.monitors[1]["width"] // 2
+            self.center_y = sct.monitors[1]["height"] // 2
+            region = {
+                "left": self.center_x - self.region_size // 2,
+                "top": self.center_y - self.region_size // 2,
+                "width": self.region_size,
+                "height": self.region_size,
+            }
+            img = sct.grab(region)
+            img_array = np.array(img)
+            return np.mean(img_array, axis=(0, 1))
+
+    def check_color_change(self, current_avg):
+        if self.last_avg_color is None: return False
+        color_diff = np.abs(current_avg - self.last_avg_color)
+        return np.any(color_diff > self.threshold)
+
+    def run(self):
+        self.last_avg_color = self.calculate_avg_color()
+        while True:
+            current_avg = self.calculate_avg_color()
+            if self.check_color_change(current_avg):
+                time.sleep(self.delay / 1000)
+                self.ser.write(b"9999,9999\n")
+                self.ser.flush()
+                self.active = False
+                break
 
 class AutoAim:
     def __init__(self, ser, size, lColor, hColor, sens, offsets):
@@ -56,47 +96,6 @@ class AutoAim:
                 self.ser.flush()
                 print("No key point detected, sent (0,0)")
 
-
-class AutoTrigger:
-    def __init__(self, ser, threshold, region_size, delay):
-        self.last_avg_color = None
-
-        self.ser = ser
-        self.threshold = threshold
-        self.region_size = region_size
-        self.delay = delay
-
-    def calculate_avg_color(self):
-        with mss.mss() as sct:
-            self.center_x = sct.monitors[1]["width"] // 2
-            self.center_y = sct.monitors[1]["height"] // 2
-            region = {
-                "left": self.center_x - self.region_size // 2,
-                "top": self.center_y - self.region_size // 2,
-                "width": self.region_size,
-                "height": self.region_size,
-            }
-            img = sct.grab(region)
-            img_array = np.array(img)
-            return np.mean(img_array, axis=(0, 1))
-
-    def check_color_change(self, current_avg):
-        if self.last_avg_color is None: return False
-        color_diff = np.abs(current_avg - self.last_avg_color)
-        return np.any(color_diff > self.threshold)
-
-    def run(self):
-        self.last_avg_color = self.calculate_avg_color()
-        while True:
-            current_avg = self.calculate_avg_color()
-            if self.check_color_change(current_avg):
-                time.sleep(self.delay / 1000)
-                self.ser.write(b"9999,9999\n")
-                self.ser.flush()
-                self.active = False
-                break
-
-
 def lets_cheat():
     config_path = os.path.join(os.path.dirname(__file__), 'configs.json')
     with open(config_path, 'r') as f:
@@ -127,7 +126,7 @@ def lets_cheat():
     aim_active = False
 
     def on_trigger_press(event):
-        nonlocal trigger_active  # Access outer scope variable
+        nonlocal trigger_active
         if event.name == trigger_config["hotkey"]:
             if not trigger_active:
                 trigger_active = True
@@ -139,24 +138,26 @@ def lets_cheat():
         if event.name == trigger_config["hotkey"]:
             trigger_active = False
 
-    def on_aim_press(event):
+    def on_mouse_click():
         nonlocal aim_active
-        if event.name == aim_config["hotkey"]:
-            if not aim_active:
-                aim_active = True
-                print("do auto_aim")
-                bot.run()
-
-    def on_aim_release(event):
-        nonlocal aim_active
-        if event.name == aim_config["hotkey"]:
+        if not aim_active:
+            aim_active = True
+            print("do auto_aim (mouse middle click)")
+            bot.run()
             aim_active = False
 
+    # 鼠标中键
+    # mouse.on_middle_click(on_mouse_click)
+
+    # 鼠标右键
+    mouse.on_right_click(on_mouse_click)
+    
+    # Set up keyboard handlers for trigger
     keyboard.on_press_key(trigger_config["hotkey"], on_trigger_press)
     keyboard.on_release_key(trigger_config["hotkey"], on_trigger_release)
-    keyboard.on_press_key(aim_config["hotkey"], on_aim_press)
-    keyboard.on_release_key(aim_config["hotkey"], on_aim_release)
 
+    print("Program running - press ']' to exit")
     keyboard.wait(']')
+    mouse.unhook_all()  # Clean up mouse handlers
 
 lets_cheat()
