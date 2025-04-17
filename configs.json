@@ -1,7 +1,7 @@
 {
     "serial": {
       "port": "com7",
-      "baud": 9600
+      "baud": 115200
     },
     "auto_trigger": {
       "hotkey":"`",
@@ -9,12 +9,10 @@
       "region_size":14,
       "threshold":15
     },
-    "auto_aim": {
+    "auto_control": {
       "hotkey":"alt",
-      "size": 200,
-      "lower_color": [235, 50, 235],
-      "upper_color": [285, 215, 285],
-      "sens": 0.246,
-      "offsets": [2,5]
+      "switch":"]",
+      "sens":0.78,
+      "delay":0.0015
     }
   }
