@@ -6,7 +6,6 @@ import time
 import cv2
 import json
 import os
-import mouse
 
 class AutoTrigger:
     def __init__(self, ser, threshold, region_size, delay):
@@ -126,7 +125,7 @@ def lets_cheat():
     aim_active = False
 
     def on_trigger_press(event):
-        nonlocal trigger_active
+        nonlocal trigger_active  # Access outer scope variable
         if event.name == trigger_config["hotkey"]:
             if not trigger_active:
                 trigger_active = True
@@ -138,26 +137,24 @@ def lets_cheat():
         if event.name == trigger_config["hotkey"]:
             trigger_active = False
 
-    def on_mouse_click():
+    def on_aim_press(event):
         nonlocal aim_active
-        if not aim_active:
-            aim_active = True
-            print("do auto_aim (mouse middle click)")
-            bot.run()
+        if event.name == aim_config["hotkey"]:
+            if not aim_active:
+                aim_active = True
+                print("do auto_aim")
+                bot.run()
+
+    def on_aim_release(event):
+        nonlocal aim_active
+        if event.name == aim_config["hotkey"]:
             aim_active = False
 
-    # 鼠标中键
-    # mouse.on_middle_click(on_mouse_click)
-
-    # 鼠标右键
-    mouse.on_right_click(on_mouse_click)
-    
-    # Set up keyboard handlers for trigger
     keyboard.on_press_key(trigger_config["hotkey"], on_trigger_press)
     keyboard.on_release_key(trigger_config["hotkey"], on_trigger_release)
+    keyboard.on_press_key(aim_config["hotkey"], on_aim_press)
+    keyboard.on_release_key(aim_config["hotkey"], on_aim_release)
 
-    print("Program running - press ']' to exit")
     keyboard.wait(']')
-    mouse.unhook_all()  # Clean up mouse handlers
 
 lets_cheat()

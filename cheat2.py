@@ -1,3 +1,6 @@
+
+## -------------  该版本是鼠标按键触发自瞄版本，调用了鼠标库可能容易导致封号，慎用！-----------
+
 import serial
 import numpy as np
 import keyboard
